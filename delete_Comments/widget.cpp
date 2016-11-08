@@ -1,22 +1,40 @@
 #include "widget.h"
 #include "QVector.h"
 
+
 Widget::Widget(QWidget *parent): QWidget(parent)
 {
+
     lay = new QVBoxLayout;
     txt = new QTextEdit;
 
     btn1 = new QPushButton;
     btn1->setText("Set Text");
+    btn1->setStyleSheet("text-transform: uppercase;"
+                        "background-color: #726EF7;");
+
 
     btn2 = new QPushButton;
     btn2->setText("Delete Comments");
+    btn2->setStyleSheet("text-transform: uppercase;"
+                        "background-color: #726EF7;");
 
     btn3 = new QPushButton;
     btn3->setText("Save txt file");
+    btn3->setStyleSheet("text-transform: uppercase;"
+                        "background-color: #726EF7;");
 
     btn4 = new QPushButton;
     btn4->setText("Clear workspace");
+    btn4->setStyleSheet("text-transform: uppercase;"
+                        "background-color: #726EF7;");
+
+    QFont fontForButtons("Arial",14,QFont::Bold);
+    btn1->setFont(fontForButtons);
+    btn2->setFont(fontForButtons);
+    btn3->setFont(fontForButtons);
+    btn4->setFont(fontForButtons);
+
 
     lay->addWidget(txt);
     lay->addWidget(btn1);
@@ -31,11 +49,8 @@ Widget::Widget(QWidget *parent): QWidget(parent)
     connect(btn2,SIGNAL(clicked(bool)),this,SLOT(DelComments()));
     connect(btn3,SIGNAL(clicked(bool)),this,SLOT(SaveFile()));
     connect(btn4,SIGNAL(clicked(bool)),this,SLOT(ClearWorkspace()));
-}
 
-Widget::~Widget()
-{
-
+    EditTextArea(txt);
 }
 
 void Widget::SetText()
@@ -45,7 +60,7 @@ void Widget::SetText()
                                                  "",
                                                  "*.txt ;; *.cpp ;; *.h ;; All files (*.*)"
                                                  );
-    if(file_name_str =="")
+    if(file_name_str == "")
      {
         return;
      }
@@ -55,8 +70,10 @@ void Widget::SetText()
             file.open(QIODevice::ReadOnly);
             QTextStream stream_out(&file);
             str=stream_out.readAll();
+            str.push_back('\n');
             txt->setPlainText(str);
             file.close();
+            EditTextArea(txt);
         }
 }
 
@@ -87,6 +104,7 @@ void Widget::ClearWorkspace()
 {
     txt->clear();
     str.clear();
+    EditTextArea(txt);
 }
 
 void Widget::DelComments()
@@ -94,8 +112,7 @@ void Widget::DelComments()
     str = txt->toPlainText();
     QVector<QChar>::iterator iter = str.begin();
 
-    ///---Find comments "//___//"
-
+    ///---Find comments "//..." and "/*....*/"
 
     while(iter != str.end())
     {
@@ -114,7 +131,6 @@ void Widget::DelComments()
             iter++;
             continue;
         }
-
             else if( *iter == '\'')
             {
                 do
@@ -133,80 +149,25 @@ void Widget::DelComments()
                 while(*iter != '\'');
                 iter++;
                 continue;
-            }
-
-
-        if(*iter == '/' && *(iter+1) == '/')
-        {
-            while(*iter != '\n')
+            }        
+            else if(*iter == '/' && *(iter+1) == '/')   /// Find //..... commment
             {
-               *iter = ' ';
-                iter++;
-                if(*iter == '\n')
+                while(*iter != '\n')
                 {
-                    break;
-                }
-            }
-        }
-        iter++;
-    }
-
-
-    ///---Find comments "/*___*/"
-
-    iter = str.begin();
-
-    while(iter != str.end())
-    {
-        if(*iter == '"')
-        {
-            do
-            {
-                iter++;
-                if(*iter == '\\' && *(iter+1) == '\"')
-                {
-                    iter = iter+2;
-                    continue;
-                }
-            }
-            while(*iter != '"');
-            iter++;
-            continue;
-        }
-            else if( *iter == '\'')
-            {
-                do
-                {
+                   *iter = ' ';
                     iter++;
-                    if(*iter == '\\' && *(iter+1) == '\'')
+                    if(*iter == '\n')
                     {
-                        iter+=2;
-                        continue;
+                        break;
                     }
-                        else if(*iter == '\\' && *(iter+1) == '\\')
-                        {
-                            iter++;
-                        }
                 }
-                while(*iter != '\'');
-                iter++;
-                continue;
             }
-
-            if(*iter == '/' && *(iter+1) == '*')
+            else if(*iter == '/' && *(iter+1) == '*')   /// Find /*....*/ commment
             {
                 *iter = ' ';
                 iter++;
                 *iter = ' ';
                 iter++;
-
-                ///--- New Fix bug fix
-
-                    /*
-                    *   find this comment
-                    *
-                    */
-
                 while((*iter != '*' && *(iter+1) != '/') | (*iter == '*' && *(iter+1) != '/'))
                 {
                     *iter = ' ';
@@ -219,9 +180,18 @@ void Widget::DelComments()
                     }
                 }
             }
-
-         iter++;
+        iter++;
     }
-
     txt->setPlainText(str);
+    EditTextArea(txt);
 }
+
+void Widget::EditTextArea(QTextEdit * textEdit)
+{
+    QFont myClassicFont("Arial", 12, QFont::Bold);
+    textEdit->setFont(myClassicFont);
+    textEdit->setTextColor(QColor(Qt::black));
+    textEdit->setTextBackgroundColor(QColor(Qt::white));
+}
+
+

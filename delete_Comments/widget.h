@@ -16,9 +16,11 @@ private:
     QPushButton *btn3;
     QPushButton *btn4;
 
+    void EditTextArea(QTextEdit *textEdit);
+
+
 public:
-    Widget(QWidget *parent = 0);    
-    ~Widget();
+    Widget(QWidget *parent = 0);
 
 public slots:
     void DelComments();
