@@ -69,8 +69,7 @@ void Widget::SetText()
             QFile file(file_name_str);
             file.open(QIODevice::ReadOnly);
             QTextStream stream_out(&file);
-            str=stream_out.readAll();
-            str.push_back('\n');
+            str=stream_out.readAll();            
             txt->setPlainText(str);
             file.close();
             EditTextArea(txt);
@@ -116,6 +115,8 @@ void Widget::DelComments()
 
     while(iter != str.end())
     {
+        try
+        {
         if(*iter == '"')
         {
             do
@@ -160,6 +161,10 @@ void Widget::DelComments()
                     {
                         break;
                     }
+                    if(iter == str.end())
+                    {
+                        throw true;
+                    }
                 }
             }
             else if(*iter == '/' && *(iter+1) == '*')   /// Find /*....*/ commment
@@ -168,7 +173,7 @@ void Widget::DelComments()
                 iter++;
                 *iter = ' ';
                 iter++;
-                while((*iter != '*' && *(iter+1) != '/') | (*iter == '*' && *(iter+1) != '/'))
+                while((*iter != '*' && *(iter+1) != '/')|(*iter == '*' && *(iter+1) != '/'))
                 {
                     *iter = ' ';
                     iter++;
@@ -180,6 +185,17 @@ void Widget::DelComments()
                     }
                 }
             }
+        }catch(bool stopChecking)
+        {
+            if(stopChecking)
+            {
+                break;
+            }
+                else
+                {
+
+                }
+        }
         iter++;
     }
     txt->setPlainText(str);
