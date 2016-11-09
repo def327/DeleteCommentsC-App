@@ -18,6 +18,8 @@ private:
 
     void EditTextArea(QTextEdit *textEdit);
 
+    void DelOneLineComment(QVector<QChar>::iterator &del_iter, QString &text_str);
+    void DelStarLineComment(QVector<QChar>::iterator &del_iter, QString &text_str);
 
 public:
     Widget(QWidget *parent = 0);

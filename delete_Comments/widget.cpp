@@ -117,79 +117,48 @@ void Widget::DelComments()
     {
         try
         {
-        if(*iter == '"')
-        {
-            do
-            {
-                iter++;
-                if(*iter == '\\' && *(iter+1) == '\"')
-                {
-                    iter+=2;
-                    continue;
-                }
-            }
-            while(*iter != '"');
-            iter++;
-            continue;
-        }
-            else if( *iter == '\'')
+            if(*iter == '"')
             {
                 do
                 {
                     iter++;
-                    if(*iter == '\\' && *(iter+1) == '\'')
+                    if(*iter == '\\' && *(iter+1) == '\"')
                     {
                         iter+=2;
                         continue;
                     }
-                        else if(*iter == '\\' && *(iter+1) == '\\')
-                        {
-                            iter++;
-                        }
                 }
-                while(*iter != '\'');
+                while(*iter != '"');
                 iter++;
                 continue;
-            }        
-            else if(*iter == '/' && *(iter+1) == '/')   /// Find //..... commment
-            {
-                while(*iter != '\n')
+            }
+                else if( *iter == '\'')
                 {
-                   *iter = ' ';
+                    do
+                    {
+                        iter++;
+                        if(*iter == '\\' && *(iter+1) == '\'')
+                        {
+                            iter+=2;
+                            continue;
+                        }
+                            else if(*iter == '\\' && *(iter+1) == '\\')
+                            {
+                                iter++;
+                            }
+                    }
+                    while(*iter != '\'');
                     iter++;
-                    if(*iter == '\n')
-                    {
-                        break;
-                    }
-                    if(iter == str.end())
-                    {
-                        throw true;     //exeption to stop checking the  c++ program listing
-                    }
+                    continue;
                 }
-            }
-            else if(*iter == '/' && *(iter+1) == '*')   /// Find /*....*/ commment
-            {
-                *iter = ' ';
-                iter++;
-                *iter = ' ';
-                iter++;
-                while(true) // unlimited cycle to find both symbols '*' and '/'
-                {                          //together at one place at the end of comment
-                    *iter = ' ';
-                    iter++;
-                    if((*iter == '*') && (*(iter+1) == '/'))
-                    {
-                        *iter = ' ';
-                        *(iter+1) = ' ';
-                        break;
-                    }
-
-                    if(iter == str.end())
-                    {
-                        throw true;     //exeption to stop checking the  c++ program listing
-                    }
+                else if(*iter == '/' && *(iter+1) == '/')   /// Find //..... commment
+                {
+                    DelOneLineComment(iter,str);
                 }
-            }
+                else if(*iter == '/' && *(iter+1) == '*')   /// Find /*....*/ commment
+                {
+                    DelStarLineComment(iter,str);
+                }
         }catch(bool stopChecking)
         {
             if(stopChecking)
@@ -213,4 +182,48 @@ void Widget::EditTextArea(QTextEdit * textEdit)
     textEdit->setFont(myClassicFont);
     textEdit->setTextColor(QColor(Qt::black));
     textEdit->setTextBackgroundColor(QColor(Qt::white));
+}
+
+void Widget::DelOneLineComment(QVector<QChar>::iterator &del_iter, QString &text_str)
+{
+    while(*del_iter != '\n')
+    {
+       *del_iter = ' ';
+        del_iter++;
+        if(*del_iter == '\n')
+        {
+            break;
+        }
+
+        if(del_iter == text_str.end())
+        {
+            bool stopChecking = true;
+            throw stopChecking;     //exeption to stop checking the  c++ program listing
+        }
+    }
+}
+
+void Widget::DelStarLineComment(QVector<QChar>::iterator &del_iter, QString &text_str)
+{
+    *del_iter = ' ';
+    del_iter++;
+    *del_iter = ' ';
+    del_iter++;
+    while(true) // unlimited cycle to find both symbols '*' and '/'
+    {                          //together at one place at the end of comment
+        *del_iter = ' ';
+        del_iter++;
+        if((*del_iter == '*') && (*(del_iter+1) == '/'))
+        {
+            *del_iter = ' ';
+            *(del_iter+1) = ' ';
+            break;
+        }
+
+        if(del_iter == text_str.end())
+        {
+            bool stopChecking = true;
+            throw stopChecking;     //exeption to stop checking the  c++ program listing
+        }
+    }
 }
