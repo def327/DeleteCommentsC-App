@@ -173,16 +173,16 @@ void Widget::DelComments()
                 iter++;
                 *iter = ' ';
                 iter++;
-                while((*iter != '*' && *(iter+1) != '/')|(*iter == '*' && *(iter+1) != '/'))
-                {
+                while(true) // unlimited cycle to find both symbols '*' and '/'
+                {                          //together at one place at the end of comment
                     *iter = ' ';
                     iter++;
-                    if(*iter == '*' && *(iter+1) == '/')
+                    if((*iter == '*') && (*(iter+1) == '/'))
                     {
                         *iter = ' ';
                         *(iter+1) = ' ';
                         break;
-                    }
+                    }                    
                 }
             }
         }catch(bool stopChecking)
@@ -209,5 +209,3 @@ void Widget::EditTextArea(QTextEdit * textEdit)
     textEdit->setTextColor(QColor(Qt::black));
     textEdit->setTextBackgroundColor(QColor(Qt::white));
 }
-
-
