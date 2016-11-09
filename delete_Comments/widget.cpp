@@ -163,7 +163,7 @@ void Widget::DelComments()
                     }
                     if(iter == str.end())
                     {
-                        throw true;
+                        throw true;     //exeption to stop checking the  c++ program listing
                     }
                 }
             }
@@ -182,7 +182,12 @@ void Widget::DelComments()
                         *iter = ' ';
                         *(iter+1) = ' ';
                         break;
-                    }                    
+                    }
+
+                    if(iter == str.end())
+                    {
+                        throw true;     //exeption to stop checking the  c++ program listing
+                    }
                 }
             }
         }catch(bool stopChecking)
