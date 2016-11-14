@@ -7,19 +7,17 @@ class Widget : public QWidget
 {
     Q_OBJECT
 private:
-    QString str;
+    QString txtStr;
     QVBoxLayout *lay;
-    QTextEdit *txt;
+    QPlainTextEdit *txtArea;
 
     QPushButton *btn1;
     QPushButton *btn2;
     QPushButton *btn3;
     QPushButton *btn4;
 
-    void EditTextArea(QTextEdit *textEdit);
-
-    void DelOneLineComment(QVector<QChar>::iterator &del_iter, QString &text_str);
-    void DelStarLineComment(QVector<QChar>::iterator &del_iter, QString &text_str);
+    void DelOneLineComment(QVector<QChar>::iterator &delIter, QString &textStr);
+    void DelStarLineComment(QVector<QChar>::iterator &delIter, QString &textStr);
 
 public:
     Widget(QWidget *parent = 0);

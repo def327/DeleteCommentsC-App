@@ -6,7 +6,7 @@ Widget::Widget(QWidget *parent): QWidget(parent)
 {
 
     lay = new QVBoxLayout;
-    txt = new QTextEdit;
+    txtArea = new QPlainTextEdit;
 
     btn1 = new QPushButton;
     btn1->setText("Set Text");
@@ -36,7 +36,7 @@ Widget::Widget(QWidget *parent): QWidget(parent)
     btn4->setFont(fontForButtons);
 
 
-    lay->addWidget(txt);
+    lay->addWidget(txtArea);
     lay->addWidget(btn1);
     lay->addWidget(btn2);
     lay->addWidget(btn3);
@@ -50,7 +50,6 @@ Widget::Widget(QWidget *parent): QWidget(parent)
     connect(btn3,SIGNAL(clicked(bool)),this,SLOT(SaveFile()));
     connect(btn4,SIGNAL(clicked(bool)),this,SLOT(ClearWorkspace()));
 
-    EditTextArea(txt);
 }
 
 void Widget::SetText()
@@ -69,10 +68,9 @@ void Widget::SetText()
             QFile file(file_name_str);
             file.open(QIODevice::ReadOnly);
             QTextStream stream_out(&file);
-            str=stream_out.readAll();            
-            txt->setPlainText(str);
+            txtStr=stream_out.readAll();
+            txtArea->setPlainText(txtStr);
             file.close();
-            EditTextArea(txt);
         }
 }
 
@@ -91,8 +89,8 @@ void Widget::SaveFile()
         {
             QFile file(file_name_str);
             file.open(QIODevice::WriteOnly | QIODevice::Text);
-            str=txt->toPlainText();
-            QByteArray arr = QByteArray::fromStdString(str.toStdString());
+            txtStr=txtArea->toPlainText();
+            QByteArray arr = QByteArray::fromStdString(txtStr.toStdString());
             file.write(arr);
             file.close();
         }
@@ -101,19 +99,18 @@ void Widget::SaveFile()
 
 void Widget::ClearWorkspace()
 {
-    txt->clear();
-    str.clear();
-    EditTextArea(txt);
+    txtArea->clear();
+    txtStr.clear();
 }
 
 void Widget::DelComments()
 {
-    str = txt->toPlainText();
-    QVector<QChar>::iterator iter = str.begin();
+    txtStr = txtArea->toPlainText();
+    QVector<QChar>::iterator iter = txtStr.begin();
 
     ///---Find comments "//..." and "/*....*/"
 
-    while(iter != str.end())
+    while(iter != txtStr.end())
     {
         try
         {
@@ -153,11 +150,11 @@ void Widget::DelComments()
                 }
                 else if(*iter == '/' && *(iter+1) == '/')   /// Find //..... commment
                 {
-                    DelOneLineComment(iter,str);
+                    DelOneLineComment(iter,txtStr);
                 }
                 else if(*iter == '/' && *(iter+1) == '*')   /// Find /*....*/ commment
                 {
-                    DelStarLineComment(iter,str);
+                    DelStarLineComment(iter,txtStr);
                 }
         }catch(bool stopChecking)
         {
@@ -172,30 +169,22 @@ void Widget::DelComments()
         }
         iter++;
     }
-    txt->setPlainText(str);
-    EditTextArea(txt);
+    txtArea->setPlainText(txtStr);
+
 }
 
-void Widget::EditTextArea(QTextEdit * textEdit)
+void Widget::DelOneLineComment(QVector<QChar>::iterator &delIter, QString &textStr)
 {
-    QFont myClassicFont("Arial", 12, QFont::Bold);
-    textEdit->setFont(myClassicFont);
-    textEdit->setTextColor(QColor(Qt::black));
-    textEdit->setTextBackgroundColor(QColor(Qt::white));
-}
-
-void Widget::DelOneLineComment(QVector<QChar>::iterator &del_iter, QString &text_str)
-{
-    while(*del_iter != '\n')
+    while(*delIter != '\n')
     {
-       *del_iter = ' ';
-        del_iter++;
-        if(*del_iter == '\n')
+       *delIter = ' ';
+        delIter++;
+        if(*delIter == '\n')
         {
             break;
         }
 
-        if(del_iter == text_str.end())
+        if(delIter == textStr.end())
         {
             bool stopChecking = true;
             throw stopChecking;     //exeption to stop checking the  c++ program listing
@@ -203,7 +192,7 @@ void Widget::DelOneLineComment(QVector<QChar>::iterator &del_iter, QString &text
     }
 }
 
-void Widget::DelStarLineComment(QVector<QChar>::iterator &del_iter, QString &text_str)
+void Widget::DelStarLineComment(QVector<QChar>::iterator &del_iter, QString &textStr)
 {
     *del_iter = ' ';
     del_iter++;
@@ -220,10 +209,13 @@ void Widget::DelStarLineComment(QVector<QChar>::iterator &del_iter, QString &tex
             break;
         }
 
-        if(del_iter == text_str.end())
+        if(del_iter == textStr.end())
         {
             bool stopChecking = true;
             throw stopChecking;     //exeption to stop checking the  c++ program listing
         }
     }
 }
+
+
+
